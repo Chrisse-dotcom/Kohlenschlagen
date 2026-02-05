@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kohlenschlagen – Spiel-Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <h1>Kohlenschlagen</h1>
+        <p class="subtitle">Spielverwaltung &amp; Dokumentation für Karfreitag</p>
+      </div>
+      <div class="team-actions">
+        <label class="field">
+          <span>Aktives Team</span>
+          <select id="teamSelect"></select>
+        </label>
+        <button id="newTeamBtn" class="primary">Neues Team</button>
+        <button id="endGameBtn" class="danger">Spiel beenden</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="teamSetup" class="card">
+        <h2>Team anlegen</h2>
+        <p>Bitte lege ein Team an, um das Spiel zu starten.</p>
+        <form id="teamForm">
+          <label class="field">
+            <span>Teamname</span>
+            <input id="teamName" type="text" placeholder="z. B. Kohlenschläger 2024" required />
+          </label>
+          <button class="primary" type="submit">Team erstellen</button>
+        </form>
+      </section>
+
+      <section id="app" class="hidden">
+        <nav class="tabs">
+          <button data-view="dashboard" class="tab active">Dashboard</button>
+          <button data-view="spielzug" class="tab">Spielzug</button>
+          <button data-view="pflicht" class="tab">Pflichtschläge</button>
+          <button data-view="optionen" class="tab">Optionen</button>
+        </nav>
+
+        <section id="dashboard" class="view card"></section>
+        <section id="spielzug" class="view card hidden"></section>
+        <section id="pflicht" class="view card hidden"></section>
+        <section id="optionen" class="view card hidden"></section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Hinweis: Änderungen werden lokal im Browser gespeichert.</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
