@@ -1,0 +1,1758 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  
+	<!-- ✅ App Icon für Browser + Homescreen -->
+	<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+	<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+	
+	<!-- ✅ iOS Homescreen App Mode -->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Kohlenschlagen">
+	
+  <title>Kohlenschlagen – digitaler Spielzettel</title>
+
+  <style>
+    :root{
+      --bg1:#0b1220;
+      --bg2:#111827;
+      --surface: rgba(255,255,255,.92);
+      --surface2: rgba(255,255,255,.82);
+      --text:#0b1220;
+      --muted:#667085;
+      --border: rgba(15,23,42,.10);
+      --shadow: 0 14px 40px rgba(2,6,23,.18);
+      --shadow2: 0 8px 18px rgba(2,6,23,.10);
+      --radius: 18px;
+      --pad: 16px;
+
+      --brand:#111;
+      --brand2:#0b0b0b;
+
+      --danger:#b91c1c;
+      --warn:#b45309;
+
+      --soft:#f2f4f7;
+      --soft2:#fafafa;
+      --focus: rgba(59,130,246,.22);
+      --ok:#16a34a;
+
+      --max: 1100px;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 700px at 20% 0%, rgba(59,130,246,.25), transparent 65%),
+        radial-gradient(900px 500px at 90% 10%, rgba(236,72,153,.18), transparent 65%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+    }
+
+    header{
+      position: sticky;
+      top:0;
+      z-index: 50;
+      padding: 14px 16px;
+      backdrop-filter: blur(10px);
+      background: rgba(17,24,39,.72);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    header .wrap{
+      max-width: var(--max);
+      margin: 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      color:#fff;
+    }
+    header .brand{
+      display:flex;
+      align-items:baseline;
+      gap:10px;
+    }
+    header strong{ letter-spacing:-.02em; font-size: 16px; }
+    header .tag{
+      font-size: 12px;
+      color: rgba(255,255,255,.72);
+      padding: 3px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+    }
+
+    main{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 18px 14px 28px;
+    }
+
+    h2,h3,h4{
+      letter-spacing: -0.02em;
+      margin:0;
+    }
+    h2{ font-size: 22px; }
+    h3{ font-size: 18px; }
+    h4{ font-size: 14px; margin-bottom: 8px; color: #111827; }
+
+    .muted{ color:var(--muted); }
+    .small{ font-size: 13px; }
+
+    .card{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: var(--pad);
+      box-shadow: var(--shadow2);
+      margin-bottom: 14px;
+    }
+    .card.glass{
+      background: rgba(255,255,255,.86);
+      backdrop-filter: blur(10px);
+    }
+    .cardTitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 10px;
+    }
+    .divider{
+      height:1px;
+      background: rgba(15,23,42,.08);
+      margin: 12px 0;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .spacer{ height: 6px; }
+    .w-auto{ width:auto; }
+
+    input, textarea, select, button{
+      font-size: 16px;
+      border-radius: 14px;
+    }
+    input, textarea, select{
+      padding: 11px 12px;
+      border: 1px solid rgba(15,23,42,.12);
+      background:#fff;
+      outline:none;
+      width: 100%;
+      box-shadow: 0 1px 0 rgba(2,6,23,.04);
+    }
+    textarea{ min-height: 140px; resize: vertical; }
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(59,130,246,.45);
+      box-shadow: 0 0 0 4px var(--focus);
+    }
+
+    button{
+      border:0;
+      cursor:pointer;
+      padding: 10px 12px;
+      background: linear-gradient(180deg, var(--brand), var(--brand2));
+      color:#fff;
+      transition: transform .06s ease, opacity .15s ease, box-shadow .15s ease;
+      box-shadow: 0 10px 20px rgba(0,0,0,.18);
+      width: auto;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      user-select:none;
+      white-space: nowrap;
+    }
+    button:hover{ opacity:.96; }
+    button:active{ transform: translateY(1px); }
+    button.secondary{
+      background: rgba(15,23,42,.04);
+      color: var(--text);
+      box-shadow:none;
+      border:1px solid rgba(15,23,42,.10);
+    }
+    button.danger{
+      background: linear-gradient(180deg, #dc2626, #991b1b);
+      box-shadow: 0 10px 18px rgba(185,28,28,.22);
+    }
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .icon{
+      width: 16px;
+      height: 16px;
+      display:inline-block;
+      flex: 0 0 16px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(99,102,241,.10);
+      border:1px solid rgba(99,102,241,.18);
+      font-size: 12px;
+      color:#3730a3;
+    }
+
+    /* ✅ Status Pills */
+    .pill.ok{
+      background: rgba(16,185,129,.12);
+      border-color: rgba(16,185,129,.22);
+      color:#065f46;
+    }
+    .pill.live{
+      background: rgba(34,197,94,.10);
+      border-color: rgba(34,197,94,.22);
+      color:#14532d;
+    }
+
+    .teamTop{
+      position: sticky;
+      top: 62px;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,.82);
+    }
+
+    .segmented{
+      display:inline-flex;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.04);
+      border:1px solid rgba(15,23,42,.10);
+    }
+    .segmented button{
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      box-shadow:none;
+      border:0;
+    }
+    .segmented button.active{
+      background:#fff;
+      color: var(--text);
+      border:1px solid rgba(15,23,42,.10);
+      box-shadow: 0 10px 18px rgba(2,6,23,.08);
+    }
+
+    .subtabs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .subtabs button{
+      box-shadow:none;
+      border:1px solid rgba(15,23,42,.10);
+      background: rgba(15,23,42,.04);
+      color: var(--text);
+    }
+    .subtabs button.active{
+      background:#fff;
+      box-shadow: 0 10px 18px rgba(2,6,23,.08);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+      gap:10px;
+    }
+
+    .check{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      padding: 12px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius: 16px;
+      background: rgba(255,255,255,.75);
+      box-shadow: 0 6px 14px rgba(2,6,23,.06);
+    }
+    .check input{ transform: scale(1.1); width:auto; }
+    .check:hover{ transform: translateY(-1px); transition: transform .12s ease; }
+    /* ✅ optisches Feedback bei Checkbox */
+    .check input:checked{
+      outline: 3px solid rgba(59,130,246,.25);
+      border-radius: 4px;
+    }
+
+    table{ width:100%; border-collapse: collapse; }
+    th, td{
+      padding: 11px 10px;
+      border-bottom: 1px solid rgba(15,23,42,.06);
+      text-align:left;
+      vertical-align: top;
+    }
+    th{ color:#475467; font-weight:650; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    tbody tr:hover{ background: rgba(2,6,23,.02); }
+
+    .kpi{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+    .kpi .box{
+      background: rgba(255,255,255,.85);
+      border:1px solid rgba(15,23,42,.10);
+      border-radius: 16px;
+      padding: 12px;
+      min-width: 180px;
+      box-shadow: 0 10px 18px rgba(2,6,23,.07);
+    }
+
+    .warn{
+      background: rgba(255,247,237,.90);
+      border:1px solid rgba(251,191,36,.35);
+      border-radius: 16px;
+      padding: 12px;
+      color:#7c2d12;
+    }
+    .ok{
+      background: rgba(240,253,244,.90);
+      border:1px solid rgba(34,197,94,.25);
+      border-radius: 16px;
+      padding: 12px;
+      color:#14532d;
+    }
+
+    .leaderRow{
+      background: rgba(224,242,254,.55);
+    }
+
+    .mobileOnly{ display:none; }
+    .desktopOnly{ display:block; }
+
+    .sectionCard{ background: rgba(2,6,23,.02); }
+
+    .field label{
+      display:block;
+      margin: 0 0 6px 2px;
+      font-size: 12px;
+      letter-spacing: .02em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .dangerLink{
+      background: transparent;
+      border: 0;
+      color: var(--danger);
+      box-shadow:none;
+      padding: 0;
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: 14px;
+    }
+
+    .teamItem{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 0;
+      border-bottom: 1px dashed rgba(15,23,42,.10);
+    }
+    .teamItem:last-child{ border-bottom: 0; }
+    .teamItem .left{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .teamItem strong{ letter-spacing:-.01em; }
+    .metaInline{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toastWrap{
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      width: min(560px, calc(100% - 24px));
+      pointer-events: none;
+    }
+    .toast{
+      pointer-events: auto;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(17,24,39,.92);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: 0 16px 40px rgba(0,0,0,.25);
+      animation: pop .18s ease-out;
+    }
+    .toast .msg{ font-size: 14px; line-height:1.35; }
+    .toast .x{
+      background: transparent;
+      border: 0;
+      color: rgba(255,255,255,.8);
+      padding: 0;
+      cursor: pointer;
+      box-shadow:none;
+    }
+    @keyframes pop{
+      from{ transform: translateY(8px); opacity: .0; }
+      to{ transform: translateY(0); opacity: 1; }
+    }
+
+    .currentTurnBox{
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid #bae6fd;
+      background: linear-gradient(90deg,#f0f9ff,#ffffff);
+      box-shadow: 0 4px 14px rgba(14,165,233,.15);
+    }
+    .currentTurnBox .label{
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #0369a1;
+      font-weight: 700;
+    }
+    .currentTurnBox .playerName{
+      font-size: 20px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+    .currentTurnBox .meta{
+      margin-top: 6px;
+      font-size: 13px;
+      color: #475569;
+    }
+
+    .eventGrid{
+      display:grid;
+      grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+      gap:10px;
+      margin-top: 10px;
+    }
+    .eventBtn{
+      justify-content: space-between;
+      width: 100%;
+      background: rgba(255,255,255,.85);
+      color: var(--text);
+      border: 1px solid rgba(15,23,42,.10);
+      box-shadow: 0 10px 18px rgba(2,6,23,.07);
+    }
+    .eventBtn .left{
+      display:flex;
+      flex-direction: column;
+      align-items:flex-start;
+      gap:2px;
+    }
+    .eventBtn .name{
+      font-weight: 800;
+      letter-spacing: -.01em;
+    }
+    .eventBtn .sub{
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .eventBtn .count{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width: 34px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(2,6,23,.06);
+      border:1px solid rgba(15,23,42,.10);
+      font-weight: 800;
+      color: #111827;
+    }
+
+    /* ✅ Header: aktueller Spieler + Ergebnis (Flex) */
+    .currentPlayerLine{
+      margin-top: 6px;
+      display:flex;
+      gap:10px;
+      align-items:baseline;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      padding: 6px 10px;
+      border-radius: 12px;
+      background: rgba(14,165,233,.08);
+      border: 1px solid rgba(14,165,233,.18);
+    }
+    .currentPlayerLine .left{ font-weight:600; }
+    .currentPlayerLine .right{ font-weight:800; }
+
+    /* ✅ Primary Button (z.B. "Weiter") */
+    button.primary{
+      background: linear-gradient(180deg, #0ea5e9, #0284c7);
+      box-shadow: 0 12px 22px rgba(14,165,233,.25);
+    }
+
+    @media (max-width: 760px){
+      main{ padding: 14px 12px 24px; }
+      .desktopOnly{ display:none; }
+      .mobileOnly{ display:block; }
+      .teamTop{ top: 58px; }
+
+      .playerCard{
+        border:1px solid rgba(15,23,42,.10);
+        background: rgba(255,255,255,.86);
+        border-radius: 18px;
+        padding: 12px;
+        margin-bottom: 10px;
+        box-shadow: 0 12px 22px rgba(2,6,23,.12);
+      }
+      .playerCard .top{
+        display:flex;
+        justify-content:space-between;
+        align-items: baseline;
+        gap:10px;
+      }
+      .playerCard .money{
+        font-weight:800;
+        font-size: 16px;
+        letter-spacing:-.01em;
+      }
+      .playerCard .meta{
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.35;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">
+      <strong>Kohlenschlagen</strong>
+      <span class="tag">digitaler Spielzettel</span>
+    </div>
+    <div class="muted small" style="color:rgba(255,255,255,.72);">v5</div>
+  </div>
+</header>
+
+<main>
+  <!-- START -->
+  <div id="viewStart" class="card glass">
+    <div class="cardTitle">
+      <h2>Neues Team anlegen</h2>
+      <span class="pill">🧾 lokal gespeichert</span>
+    </div>
+
+    <div class="row">
+      <input id="teamName" class="w-auto" style="flex:1; min-width: 220px;" placeholder="Teamname" />
+      <button id="createTeamBtn" type="button">
+        <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Team erstellen
+      </button>
+    </div>
+
+    <p class="muted small" style="margin:10px 0 0;">
+      Teams bleiben im Browser gespeichert. Neues Spiel = neues Team.
+    </p>
+  </div>
+
+  <!-- TEAM VIEW -->
+  <div id="viewTeam" style="display:none;">
+    <div class="card teamTop glass">
+      <div class="row" style="justify-content:space-between; align-items:flex-end; gap:12px;">
+
+        <!-- LINKS: Teamname + Status + Meta -->
+        <div style="min-width:260px;">
+          <div style="display:flex; gap:10px; align-items:baseline; flex-wrap:wrap;">
+            <h2 id="teamTitle" style="margin:0;"></h2>
+            <span id="teamStatusPill" class="pill" style="display:none;"></span>
+          </div>
+
+          <div class="muted small" id="teamMeta"></div>
+
+          <!-- Aktueller Spieler + Ergebnis -->
+          <div id="currentPlayerLine" class="currentPlayerLine muted small">—</div>
+        </div>
+
+        <!-- RECHTS: Tabs -->
+        <div class="segmented" role="tablist" aria-label="Ansicht wählen">
+          <button id="tabDashboard" class="active" type="button">Dashboard</button>
+          <button id="tabGame" type="button">Spiel</button>
+          <button id="tabOptions" type="button">Optionen</button>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="panelDashboard" class="card"></div>
+    <div id="panelGame" class="card" style="display:none;"></div>
+    <div id="panelOptions" class="card" style="display:none;"></div>
+  </div>
+
+  <!-- TEAM LIST -->
+  <div class="card glass">
+    <div class="row" style="justify-content:space-between;">
+      <h3>Vorhandene Teams</h3>
+      <button id="deleteAllTeamsBtn" class="secondary" type="button">
+        <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M9 6V4h6v2m-7 4v10m8-10v10M6 6l1 16h10l1-16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Alle löschen
+      </button>
+    </div>
+    <div class="spacer"></div>
+    <div id="teamList" class="muted">—</div>
+  </div>
+</main>
+
+<div class="toastWrap" id="toastWrap" style="display:none;"></div>
+
+<script>
+(() => {
+  "use strict";
+
+  /** =======================
+   *  Storage
+   *  ======================= */
+  const KEY = "kohlenschlagen_teams_v5_clean";
+
+  function loadTeams(){
+    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+    catch { return []; }
+  }
+  function saveTeams(teams){
+    localStorage.setItem(KEY, JSON.stringify(teams));
+  }
+
+  /** =======================
+   *  Tiny UI helpers
+   *  ======================= */
+  const toastWrap = document.getElementById("toastWrap");
+  let toastTimer = null;
+
+  function toast(msg){
+    if (!toastWrap) return;
+    toastWrap.style.display = "block";
+    toastWrap.innerHTML = `
+      <div class="toast" role="status" aria-live="polite">
+        <div class="msg">${escapeHtml(msg)}</div>
+        <button class="x" type="button" aria-label="Schließen">✕</button>
+      </div>
+    `;
+    const x = toastWrap.querySelector(".x");
+    x?.addEventListener("click", hideToast);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 2600);
+  }
+  function hideToast(){
+    if (!toastWrap) return;
+    toastWrap.style.display = "none";
+    toastWrap.innerHTML = "";
+  }
+
+  /** =======================
+   *  Helpers
+   *  ======================= */
+  function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
+  function eur(n){
+    const x = Math.round((Number(n) + Number.EPSILON) * 100) / 100;
+    return x.toFixed(2).replace(".", ",") + " €";
+  }
+  function nowStr(ts){ return new Date(ts).toLocaleString(); }
+  function deepClone(x){ return JSON.parse(JSON.stringify(x)); }
+
+  /** =======================
+   *  Model
+   *  ======================= */
+  function defaultTeam(name){
+    return {
+      teamId: uid(),
+      teamName: name.trim(),
+      createdAt: Date.now(),
+      ended: false,
+      config: {
+        points: { stockditsch: 1, windditsch: 1, unterweite: 1 },
+        money:  { kohleWeg: 1.00, heideKaputt: 1.00, stockKaputt: 1.00, pflichtschlag: 1.00 },
+        pf: { maxAttempts: 3 } // ✅ NEU: Standard 3, aber änderbar
+      },
+      players: [],
+      turn: { currentPlayerIndex: 0, round: 1 },
+      history: []
+    };
+  }
+
+  function blankPlayer(name){
+    return {
+      name: name.trim(),
+      pointsTotal: 0,
+      events: { kohleWeg:0, heideKaputt:0, stockKaputt:0 },
+
+      pfAttempts: 0,
+      pfFails: 0,
+      pfDone: false,
+      pfSuccess: false
+    };
+  }
+
+  function anyPlayersMissing(team){
+    return !team.players || team.players.length === 0;
+  }
+
+  function normalizeTeam(team){
+    if (!team || !Array.isArray(team.players)) return false;
+    let changed = false;
+
+    // ✅ NEU: Pflicht-Maxversuche Defaults (für alte gespeicherte Teams)
+    if (!team.config) { team.config = {}; changed = true; }
+    if (!team.config.pf) { team.config.pf = { maxAttempts: 3 }; changed = true; }
+    if (typeof team.config.pf.maxAttempts !== "number" || team.config.pf.maxAttempts < 1){
+      team.config.pf.maxAttempts = 3;
+      changed = true;
+    }
+
+    for (const p of team.players){
+      if (!p.events || typeof p.events !== "object"){
+        p.events = { kohleWeg:0, heideKaputt:0, stockKaputt:0 };
+        changed = true;
+      }
+      if (p.flags && typeof p.flags === "object"){
+        p.events.kohleWeg = Math.max(p.events.kohleWeg||0, p.flags.kohleWeg ? 1 : 0);
+        p.events.heideKaputt = Math.max(p.events.heideKaputt||0, p.flags.heideKaputt ? 1 : 0);
+        p.events.stockKaputt = Math.max(p.events.stockKaputt||0, p.flags.stockKaputt ? 1 : 0);
+        delete p.flags;
+        changed = true;
+      }
+
+      if (typeof p.pfAttempts !== "number"){ p.pfAttempts = 0; changed = true; }
+      if (typeof p.pfFails !== "number"){ p.pfFails = 0; changed = true; }
+      if (typeof p.pfDone !== "boolean"){ p.pfDone = false; changed = true; }
+      if (typeof p.pfSuccess !== "boolean"){ p.pfSuccess = false; changed = true; }
+      if (typeof p.pointsTotal !== "number"){ p.pointsTotal = 0; changed = true; }
+
+      for (const k of ["kohleWeg","heideKaputt","stockKaputt"]){
+        if (typeof p.events[k] !== "number"){ p.events[k] = 0; changed = true; }
+      }
+    }
+    return changed;
+  }
+
+  function calcTotals(team, p){
+    const money = team.config.money;
+    const pointsEuro = (p.pointsTotal || 0) * 0.01;
+
+    const ev = p.events || { kohleWeg:0, heideKaputt:0, stockKaputt:0 };
+    const eventsEuro =
+      (Number(ev.kohleWeg)||0)   * (Number(money.kohleWeg)||0) +
+      (Number(ev.heideKaputt)||0)* (Number(money.heideKaputt)||0) +
+      (Number(ev.stockKaputt)||0)* (Number(money.stockKaputt)||0);
+
+    const pfCostEuro = (p.pfFails || 0) * (Number(money.pflichtschlag)||0);
+    const totalEuro = pointsEuro + eventsEuro + pfCostEuro;
+
+    return { pointsEuro, eventsEuro, pfCostEuro, totalEuro };
+  }
+
+  /** =======================
+   *  App State
+   *  ======================= */
+  let teams = loadTeams();
+  let activeTeamId = null;
+
+  let activeTab = "dash";
+  let gameSubTab = "turn";
+  let pfSelectIndex = 0;
+
+  function getActiveTeam(){
+    return teams.find(t => t.teamId === activeTeamId) || null;
+  }
+
+  function setActiveTeam(id){
+    activeTeamId = id;
+    document.getElementById("viewTeam").style.display = "block";
+    activeTab = "dash";
+    gameSubTab = "turn";
+    pfSelectIndex = 0;
+    renderAll();
+  }
+
+  /** =======================
+   *  History
+   *  ======================= */
+  function pushHistory(team){
+    const snap = deepClone(team);
+    snap.history = [];
+    team.history.push(snap);
+    if (team.history.length > 120) team.history.shift();
+  }
+
+  /** =======================
+   *  Rendering
+   *  ======================= */
+  function renderTeamList(){
+    const el = document.getElementById("teamList");
+    if (!teams.length){
+      el.innerHTML = `<div class="muted small">Keine Teams gespeichert.</div>`;
+      return;
+    }
+
+    el.innerHTML = teams
+      .slice()
+      .sort((a,b)=>b.createdAt-a.createdAt)
+      .map(t => {
+        const ended = t.ended
+          ? `<span class="pill ok">✅ beendet</span>`
+          : `<span class="pill live">▶ läuft</span>`;
+        return `
+          <div class="teamItem">
+            <div class="left">
+              <button class="secondary" type="button" data-action="openTeam" data-id="${t.teamId}">
+                <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M10 8l6 4-6 4V8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                Öffnen
+              </button>
+              <div>
+                <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                  <strong>${escapeHtml(t.teamName)}</strong>
+                  ${ended}
+                </div>
+                <div class="metaInline">
+                  <span>📅 ${escapeHtml(nowStr(t.createdAt))}</span>
+                </div>
+              </div>
+            </div>
+            <button class="dangerLink" type="button" data-action="deleteTeam" data-id="${t.teamId}">löschen</button>
+          </div>
+        `;
+      }).join("");
+  }
+
+  function renderHeader(team){
+    document.getElementById("teamTitle").textContent = team.teamName;
+
+    // ✅ Status Pill neben Teamname
+    const status = document.getElementById("teamStatusPill");
+    if (status){
+      status.style.display = "inline-flex";
+      if (team.ended){
+        status.className = "pill ok";
+        status.textContent = "✅ beendet";
+      } else {
+        status.className = "pill live";
+        status.textContent = "▶ läuft";
+      }
+    }
+
+    const playersInfo = team.players.length
+      ? `Spieler ${team.turn.currentPlayerIndex + 1}/${team.players.length}`
+      : "Spieler —";
+
+    document.getElementById("teamMeta").textContent =
+      `Runde ${team.turn.round} • ${playersInfo} • erstellt ${nowStr(team.createdAt)}`;
+
+    // ✅ Aktueller Spieler + aktuelles Ergebnis oben anzeigen (Flex, ohne float)
+    const line = document.getElementById("currentPlayerLine");
+    if (line){
+      if (!team.players.length || team.ended){
+        line.style.display = "none";
+        line.innerHTML = "";
+      } else {
+        const current = team.players[team.turn.currentPlayerIndex];
+        const totals = calcTotals(team, current);
+
+        line.style.display = "flex";
+        line.innerHTML = `
+          <div class="left">🎯 Aktuell spielt: <strong>${escapeHtml(current.name)}</strong></div>
+          <div class="right">💰 ${eur(totals.totalEuro)}</div>
+        `;
+      }
+    }
+
+    document.getElementById("tabDashboard").classList.toggle("active", activeTab==="dash");
+    document.getElementById("tabGame").classList.toggle("active", activeTab==="game");
+    document.getElementById("tabOptions").classList.toggle("active", activeTab==="opt");
+  }
+
+  function renderDashboard(team){
+    const panel = document.getElementById("panelDashboard");
+    const maxAttempts = Number(team?.config?.pf?.maxAttempts) || 3; // ✅ NEU
+
+    panel.innerHTML = `
+      <div class="cardTitle">
+        <div>
+          <h3>Dashboard</h3>
+          <div class="muted small" style="margin-top:4px;">Sortierung: niedrigster Geldbetrag = Platz 1</div>
+        </div>
+        <div class="row">
+          <button class="secondary" type="button" data-action="exportPDF">
+            <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M7 18h10M7 14h10M7 10h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M6 2h9l3 3v17H6V2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            PDF Export
+          </button>
+          ${team.ended ? "" : `
+            <button class="danger" type="button" data-action="endGame">
+              <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Beenden
+            </button>
+          `}
+        </div>
+      </div>
+    `;
+
+    if (anyPlayersMissing(team)){
+      panel.innerHTML += `
+        <div class="warn">
+          <strong>Hinweis:</strong> Noch keine Spieler. Bitte unter <em>Optionen</em> Namen eintragen.
+        </div>
+      `;
+      return;
+    }
+
+    const rows = team.players.map(p => ({ p, ...calcTotals(team,p) }))
+      .sort((a,b)=>a.totalEuro-b.totalEuro);
+
+    const leader = rows[0];
+    panel.innerHTML += `
+      <div class="kpi">
+        <div class="box">
+          <div class="muted small">Platz 1</div>
+          <div style="margin-top:2px;"><strong>${escapeHtml(leader.p.name)}</strong></div>
+          <div class="small muted" style="margin-top:4px;">${eur(leader.totalEuro)}</div>
+        </div>
+        <div class="box"><div class="muted small">Spieler</div><div style="margin-top:2px;"><strong>${team.players.length}</strong></div></div>
+        <div class="box"><div class="muted small">Runde</div><div style="margin-top:2px;"><strong>${team.turn.round}</strong></div></div>
+      </div>
+      <div class="divider"></div>
+    `;
+
+    const pfCostPerFail = Number(team.config.money.pflichtschlag) || 0;
+
+    panel.innerHTML += `
+      <div class="mobileOnly">
+        ${rows.map((r,i)=>{
+          const ev = r.p.events || {kohleWeg:0,heideKaputt:0,stockKaputt:0};
+          const remaining = Math.max(0, maxAttempts - (r.p.pfAttempts||0));
+          const status = r.p.pfDone ? "abgeschlossen" : "offen";
+          const pfCost = (r.p.pfFails||0) * pfCostPerFail;
+          return `
+            <div class="playerCard ${i===0 ? "leaderRow" : ""}">
+              <div class="top">
+                <div><strong>#${i+1}${i===0 ? " 👑" : ""} ${escapeHtml(r.p.name)}</strong></div>
+                <div class="money">${eur(r.totalEuro)}</div>
+              </div>
+              <div class="meta">
+                Punkte: ${r.p.pointsTotal} (${eur(r.pointsEuro)})<br/>
+                Pflicht: Versuche ${r.p.pfAttempts||0}/${maxAttempts} • Fehl ${r.p.pfFails||0} • Kosten ${eur(pfCost)} • ${status} (rest ${remaining})<br/>
+                Ereignisse: Kohle ${ev.kohleWeg||0}× • Heide ${ev.heideKaputt||0}× • Stock ${ev.stockKaputt||0}× (${eur(r.eventsEuro)})
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `;
+
+    panel.innerHTML += `
+      <div class="desktopOnly">
+        <table>
+          <thead>
+            <tr>
+              <th>Platz</th>
+              <th>Spieler</th>
+              <th>Gesamt</th>
+              <th>Punkte</th>
+              <th>Pflichtstatus</th>
+              <th>Ereignisse (beliebig oft)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.map((r,i)=>{
+              const ev = r.p.events || {kohleWeg:0,heideKaputt:0,stockKaputt:0};
+              const remaining = Math.max(0, maxAttempts - (r.p.pfAttempts||0));
+              const status = r.p.pfDone ? "abgeschlossen" : "offen";
+              const pfCost = (r.p.pfFails||0) * pfCostPerFail;
+              return `
+                <tr class="${i===0 ? "leaderRow" : ""}">
+                  <td><strong>#${i+1}${i===0 ? " 👑" : ""}</strong></td>
+                  <td>${escapeHtml(r.p.name)}</td>
+                  <td><strong>${eur(r.totalEuro)}</strong></td>
+                  <td>${r.p.pointsTotal} P <span class="muted small">(${eur(r.pointsEuro)})</span></td>
+                  <td class="small muted">
+                    Versuche: ${r.p.pfAttempts||0}/${maxAttempts} • Fehl: ${r.p.pfFails||0} • Kosten: ${eur(pfCost)} • ${status} • Rest: ${remaining}
+                  </td>
+                  <td class="small muted">
+                    Kohle weg: <strong>${ev.kohleWeg||0}×</strong> •
+                    Heide kaputt: <strong>${ev.heideKaputt||0}×</strong> •
+                    Stock kaputt: <strong>${ev.stockKaputt||0}×</strong>
+                    <span class="muted small">(${eur(r.eventsEuro)})</span>
+                  </td>
+                </tr>
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  function renderGame(team){
+    const panel = document.getElementById("panelGame");
+
+    if (team.ended){
+      panel.innerHTML = `
+        <div class="cardTitle">
+          <div>
+            <h3>Spiel</h3>
+            <div class="muted small" style="margin-top:4px;">Dieses Spiel ist beendet. Es ist nur noch das Dashboard sichtbar.</div>
+          </div>
+        </div>
+        <div class="ok"><strong>Info:</strong> Du kannst weiterhin alte Teams öffnen und ansehen.</div>
+      `;
+      return;
+    }
+
+    if (anyPlayersMissing(team)){
+      panel.innerHTML = `
+        <div class="cardTitle">
+          <div>
+            <h3>Spiel</h3>
+            <div class="muted small" style="margin-top:4px;">Bitte zuerst Spieler unter Optionen anlegen.</div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    const current = team.players[team.turn.currentPlayerIndex];
+
+    panel.innerHTML = `
+      <div class="cardTitle">
+        <div>
+          <h3>Spiel</h3>
+          <div class="muted small" style="margin-top:4px;">
+            Runde ${team.turn.round}
+          </div>
+        </div>
+        <div class="row">
+          <button class="secondary" type="button" data-action="undo">
+            <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M9 14l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 20a8 8 0 0 0-8-8H5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Zurück
+          </button>
+          <button class="danger" type="button" data-action="endGame">
+            <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Beenden
+          </button>
+        </div>
+      </div>
+
+      <div class="currentTurnBox">
+        <div class="label">Wer spielt gerade?</div>
+        <div class="playerName">${escapeHtml(current.name)}</div>
+        <div class="meta">Spieler ${team.turn.currentPlayerIndex + 1}/${team.players.length} • Runde ${team.turn.round}</div>
+      </div>
+
+      <div class="subtabs">
+        <button class="${gameSubTab==="turn" ? "active" : ""}" type="button" data-action="setSubTab" data-sub="turn">Spielzug</button>
+        <button class="${gameSubTab==="pflicht" ? "active" : ""}" type="button" data-action="setSubTab" data-sub="pflicht">Pflichtschläge</button>
+      </div>
+
+      <div class="spacer"></div>
+      <div id="gameSubContent"></div>
+    `;
+
+    const sub = panel.querySelector("#gameSubContent");
+    sub.innerHTML = (gameSubTab==="pflicht") ? renderPflichtSub(team) : renderTurnSub(team);
+  }
+
+  function renderTurnSub(team){
+    const p = team.players[team.turn.currentPlayerIndex];
+    const ev = p.events || {kohleWeg:0,heideKaputt:0,stockKaputt:0};
+
+    return `
+      <div class="grid">
+        <div class="check"><input type="checkbox" id="chk_stockditsch"> <div><div><strong>Stockditsch</strong></div><div class="muted small">+${team.config.points.stockditsch} P</div></div></div>
+        <div class="check"><input type="checkbox" id="chk_windditsch"> <div><div><strong>Windditsch</strong></div><div class="muted small">+${team.config.points.windditsch} P</div></div></div>
+        <div class="check"><input type="checkbox" id="chk_unterweite"> <div><div><strong>Unterweite</strong></div><div class="muted small">+${team.config.points.unterweite} P</div></div></div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h4 style="margin-bottom:6px;">Ereignisse (beliebig oft)</h4>
+      <div class="muted small" style="margin-bottom:10px;">
+        Tippe auf einen Button, um das Ereignis <strong>sofort</strong> für <strong>${escapeHtml(p.name)}</strong> zu zählen. Zurück funktioniert natürlich.
+      </div>
+
+      <div class="eventGrid">
+        <button class="eventBtn" type="button" data-action="addEvent" data-event="kohleWeg">
+          <div class="left">
+            <div class="name">Kohle weg</div>
+            <div class="sub">+${eur(team.config.money.kohleWeg)} je Vorkommen</div>
+          </div>
+          <span class="count">${ev.kohleWeg||0}×</span>
+        </button>
+
+        <button class="eventBtn" type="button" data-action="addEvent" data-event="heideKaputt">
+          <div class="left">
+            <div class="name">Heide kaputt</div>
+            <div class="sub">+${eur(team.config.money.heideKaputt)} je Vorkommen</div>
+          </div>
+          <span class="count">${ev.heideKaputt||0}×</span>
+        </button>
+
+        <button class="eventBtn" type="button" data-action="addEvent" data-event="stockKaputt">
+          <div class="left">
+            <div class="name">Stock kaputt</div>
+            <div class="sub">+${eur(team.config.money.stockKaputt)} je Vorkommen</div>
+          </div>
+          <span class="count">${ev.stockKaputt||0}×</span>
+        </button>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button class="primary" type="button" data-action="nextTurn">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M5 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Weiter
+        </button>
+        <span class="muted small">Punkte oben optional anhaken. Ereignisse zählen per Button. Runden sind unbegrenzt.</span>
+      </div>
+    `;
+  }
+
+  function renderPflichtSub(team){
+    if (pfSelectIndex < 0 || pfSelectIndex >= team.players.length){
+      pfSelectIndex = team.turn.currentPlayerIndex;
+    }
+
+    const maxAttempts = Number(team?.config?.pf?.maxAttempts) || 3; // ✅ NEU
+    const p = team.players[pfSelectIndex];
+    const attempts = p.pfAttempts || 0;
+    const fails = p.pfFails || 0;
+    const remaining = Math.max(0, maxAttempts - attempts);
+    const costPerFail = Number(team.config.money.pflichtschlag) || 0;
+    const costSoFar = fails * costPerFail;
+
+    const disabled = p.pfDone || remaining === 0;
+
+    return `
+      <div class="card sectionCard" style="margin-bottom:0;">
+        <div class="cardTitle" style="margin-bottom:6px;">
+          <h4>Pflichtschläge (separat)</h4>
+          <span class="pill">max. ${maxAttempts} Versuche</span>
+        </div>
+
+        <p class="muted small" style="margin:0 0 10px;">
+          Erfolg beendet Pflicht sofort. Kosten nur bei <strong>Fehlversuch</strong>: <strong>${eur(costPerFail)}</strong>.
+        </p>
+
+        <div class="grid">
+          <div class="field">
+            <label>Spieler auswählen</label>
+            <select id="pflichtPlayerSelect">
+              ${team.players.map((x,i)=>{
+                const tag = x.pfDone ? " (fertig)" : "";
+                return `<option value="${i}" ${i===pfSelectIndex ? "selected" : ""}>${escapeHtml(x.name)}${tag}</option>`;
+              }).join("")}
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Status</label>
+            <div class="check" style="background:#fff;">
+              <div style="width:100%;">
+                <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap;">
+                  <div><strong>${escapeHtml(p.name)}</strong></div>
+                  <span class="pill" style="${p.pfDone ? "background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.22);color:#065f46;" : ""}">
+                    ${p.pfDone ? "✅ abgeschlossen" : "⏳ offen"}
+                  </span>
+                </div>
+                <div class="small muted" style="margin-top:6px;">
+                  Versuche: ${attempts}/${maxAttempts} • Fehlversuche: ${fails} • Verbleibend: ${remaining}
+                </div>
+                <div class="small muted">Kosten bisher: <strong>${eur(costSoFar)}</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button class="secondary" type="button" data-action="pflichtFail" ${disabled ? "disabled" : ""}>
+            <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Fehlversuch
+          </button>
+          <button type="button" data-action="pflichtSuccess" ${disabled ? "disabled" : ""}>
+            <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Erfolgreich
+          </button>
+          <button class="secondary" type="button" data-action="pflichtReset">
+            <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-3-6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 3v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Zurücksetzen
+          </button>
+        </div>
+
+        <p class="muted small" style="margin:10px 0 0;">
+          Hinweis: Bei ${maxAttempts} Versuchen wird Pflicht automatisch als abgeschlossen markiert.
+        </p>
+      </div>
+    `;
+  }
+
+  function renderOptions(team){
+    const panel = document.getElementById("panelOptions");
+    const names = team.players.map(p => p.name).join("\n");
+    const maxAttempts = Number(team?.config?.pf?.maxAttempts) || 3; // ✅ NEU
+
+    panel.innerHTML = `
+      <div class="cardTitle">
+        <div>
+          <h3>Optionen</h3>
+          <div class="muted small" style="margin-top:4px;">Konfiguration & Spielerlisten</div>
+        </div>
+      </div>
+
+      <div class="card sectionCard">
+        <h4>👥 Spieler</h4>
+        <p class="muted small" style="margin-top:6px;">Ein Name pro Zeile, maximal 10 Spieler.</p>
+        <textarea id="playerNames" rows="6">${escapeHtml(names)}</textarea>
+        <div class="row" style="margin-top:10px;">
+          <button type="button" data-action="savePlayers">
+            <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M19 21H5a2 2 0 0 1-2-2V7l4-4h10l4 4v12a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="2"/><path d="M7 21v-8h10v8" stroke="currentColor" stroke-width="2"/><path d="M9 3v4h6V3" stroke="currentColor" stroke-width="2"/></svg>
+            Spieler speichern
+          </button>
+          <button class="secondary" type="button" data-action="resetTeam">
+            <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-3-6.7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M21 3v6h-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Team zurücksetzen
+          </button>
+        </div>
+      </div>
+
+      <div class="card sectionCard">
+        <h4>🏁 Punktdefinitionen</h4>
+        <p class="muted small" style="margin-top:6px;">
+          Diese Punkte werden während des Spiels gesammelt. <strong>1 Punkt = 1 Cent</strong> im Dashboard.
+        </p>
+
+        <div class="grid">
+          <div class="field">
+            <label>Stockditsch</label>
+            <input id="p_stockditsch" type="number" min="0" value="${team.config.points.stockditsch}" />
+          </div>
+          <div class="field">
+            <label>Windditsch</label>
+            <input id="p_windditsch" type="number" min="0" value="${team.config.points.windditsch}" />
+          </div>
+          <div class="field">
+            <label>Unterweite</label>
+            <input id="p_unterweite" type="number" min="0" value="${team.config.points.unterweite}" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card sectionCard">
+        <h4>💰 Geldbeträge (fix)</h4>
+        <p class="muted small" style="margin-top:6px;">
+          Beträge direkt in Euro. <strong>Ereignisse</strong> sind jetzt beliebig oft pro Spieler möglich.
+          Pflicht separat: <strong>max. ${maxAttempts} Versuche</strong>, Kosten nur bei Fehlversuch.
+        </p>
+
+        <div class="grid">
+          <div class="field">
+            <label>Kohle weg (€)</label>
+            <input id="m_kohleWeg" type="number" step="0.01" min="0" value="${team.config.money.kohleWeg}" />
+          </div>
+          <div class="field">
+            <label>Heide kaputt (€)</label>
+            <input id="m_heideKaputt" type="number" step="0.01" min="0" value="${team.config.money.heideKaputt}" />
+          </div>
+          <div class="field">
+            <label>Stock kaputt (€)</label>
+            <input id="m_stockKaputt" type="number" step="0.01" min="0" value="${team.config.money.stockKaputt}" />
+          </div>
+          <div class="field">
+            <label>Pflichtschlag je Fehlversuch (€)</label>
+            <input id="m_pflicht" type="number" step="0.01" min="0" value="${team.config.money.pflichtschlag}" />
+          </div>
+
+          <!-- ✅ NEU: Pflichtversuche konfigurierbar -->
+          <div class="field">
+            <label>Max. Pflichtversuche</label>
+            <input id="pf_maxAttempts" type="number" min="1" step="1" value="${maxAttempts}" />
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button type="button" data-action="saveConfig">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M19 21H5a2 2 0 0 1-2-2V7l4-4h10l4 4v12a2 2 0 0 1-2 2z" stroke="currentColor" stroke-width="2"/></svg>
+          Optionen speichern
+        </button>
+      </div>
+
+      <p class="muted small" style="margin-top:10px;">
+        Regelübersicht: Punkte → Cent • Pflicht separat (max. ${maxAttempts} Versuche, Kosten nur bei Fehlversuch) • Ereignisse → beliebig oft je Spieler
+      </p>
+    `;
+  }
+
+  function showPanels(){
+    const team = getActiveTeam();
+    const dash = document.getElementById("panelDashboard");
+    const game = document.getElementById("panelGame");
+    const opt  = document.getElementById("panelOptions");
+
+    dash.style.display = (activeTab==="dash") ? "block" : "none";
+    game.style.display = (activeTab==="game") ? "block" : "none";
+    opt.style.display  = (activeTab==="opt")  ? "block" : "none";
+
+    if (team?.ended && activeTab==="game"){
+      activeTab = "dash";
+      dash.style.display = "block";
+      game.style.display = "none";
+    }
+  }
+
+  function renderAll(){
+    teams = loadTeams();
+    renderTeamList();
+
+    const team = getActiveTeam();
+    if (!team) return;
+
+    const changed = normalizeTeam(team);
+    if (changed) saveTeams(teams);
+
+    renderHeader(team);
+    showPanels();
+
+    renderDashboard(team);
+    renderGame(team);
+    renderOptions(team);
+  }
+
+  /** =======================
+   *  Actions
+   *  ======================= */
+  function persist(){ saveTeams(teams); }
+  function getTeamById(id){ return teams.find(t => t.teamId === id) || null; }
+
+  // ✅ NEU: maxAttempts konfigurierbar
+  function ensurePfAutoDone(team, p){
+    const maxAttempts = Number(team?.config?.pf?.maxAttempts) || 3;
+    if ((p.pfAttempts||0) >= maxAttempts){
+      p.pfDone = true;
+      if (!p.pfSuccess) p.pfSuccess = false;
+    }
+  }
+
+  function doAddEvent(team, evKey){
+    if (team.ended) return;
+    const p = team.players[team.turn.currentPlayerIndex];
+    if (!p) return;
+
+    if (!p.events) p.events = { kohleWeg:0, heideKaputt:0, stockKaputt:0 };
+    if (!["kohleWeg","heideKaputt","stockKaputt"].includes(evKey)) return;
+
+    pushHistory(team);
+    p.events[evKey] = (Number(p.events[evKey])||0) + 1;
+
+    persist();
+    gameSubTab = "turn";
+    renderAll();
+
+    const label = evKey === "kohleWeg" ? "Kohle weg" : (evKey === "heideKaputt" ? "Heide kaputt" : "Stock kaputt");
+    toast(`${label} gezählt (${p.name}).`);
+  }
+
+  function doNextTurn(team){
+    pushHistory(team);
+
+    const p = team.players[team.turn.currentPlayerIndex];
+    const chk = (id) => document.getElementById(id)?.checked;
+
+    if (chk("chk_stockditsch")) p.pointsTotal += Number(team.config.points.stockditsch)||0;
+    if (chk("chk_windditsch"))  p.pointsTotal += Number(team.config.points.windditsch)||0;
+    if (chk("chk_unterweite"))  p.pointsTotal += Number(team.config.points.unterweite)||0;
+
+    team.turn.currentPlayerIndex += 1;
+    if (team.turn.currentPlayerIndex >= team.players.length){
+      team.turn.currentPlayerIndex = 0;
+      team.turn.round += 1;
+    }
+
+    persist();
+    gameSubTab = "turn";
+    renderAll();
+  }
+
+  function doUndo(team){
+    if (!team.history || team.history.length === 0){
+      toast("Nichts zum Rückgängig machen.");
+      return;
+    }
+
+    const stack = team.history;
+    const prev = stack.pop();
+    prev.history = stack;
+
+    const idx = teams.findIndex(t => t.teamId === team.teamId);
+    teams[idx] = prev;
+
+    persist();
+    renderAll();
+    toast("Letzte Aktion zurückgenommen.");
+  }
+
+  function doEndGame(team){
+    if (team.ended) return;
+    if (!confirm("Wirklich beenden? Danach ist nur noch das Dashboard sichtbar.")) return;
+
+    pushHistory(team);
+    team.ended = true;
+
+    persist();
+    activeTab = "dash";
+    renderAll();
+    toast("Spiel beendet.");
+  }
+
+  function doSavePlayers(team){
+    const raw = document.getElementById("playerNames").value || "";
+    const list = raw.split("\n").map(s=>s.trim()).filter(Boolean);
+
+    if (list.length > 10) return toast("Maximal 10 Spieler erlaubt.");
+    if (list.length === 0) return toast("Bitte mindestens 1 Spieler eintragen.");
+
+    pushHistory(team);
+
+    team.players = list.map(n => blankPlayer(n));
+    team.turn.currentPlayerIndex = 0;
+    team.turn.round = 1;
+    team.ended = false;
+
+    gameSubTab = "turn";
+    pfSelectIndex = 0;
+
+    persist();
+    renderAll();
+    toast("Spieler gespeichert.");
+  }
+
+  function doSaveConfig(team){
+    pushHistory(team);
+
+    team.config.points.stockditsch = Number(document.getElementById("p_stockditsch").value || 0);
+    team.config.points.windditsch  = Number(document.getElementById("p_windditsch").value || 0);
+    team.config.points.unterweite  = Number(document.getElementById("p_unterweite").value || 0);
+
+    team.config.money.kohleWeg      = Number(document.getElementById("m_kohleWeg").value || 0);
+    team.config.money.heideKaputt   = Number(document.getElementById("m_heideKaputt").value || 0);
+    team.config.money.stockKaputt   = Number(document.getElementById("m_stockKaputt").value || 0);
+    team.config.money.pflichtschlag = Number(document.getElementById("m_pflicht").value || 0);
+
+    // ✅ NEU: max. Pflichtversuche speichern
+    if (!team.config.pf) team.config.pf = { maxAttempts: 3 };
+    team.config.pf.maxAttempts = Math.max(1, Number(document.getElementById("pf_maxAttempts")?.value || 3));
+
+    persist();
+    renderAll();
+    toast("Optionen gespeichert.");
+  }
+
+  function doResetTeam(team){
+    if (!confirm("Team wirklich zurücksetzen? (Spielstand wird gelöscht)")) return;
+
+    pushHistory(team);
+
+    team.players = [];
+    team.turn.currentPlayerIndex = 0;
+    team.turn.round = 1;
+    team.ended = false;
+
+    gameSubTab = "turn";
+    pfSelectIndex = 0;
+
+    persist();
+    activeTab = "opt";
+    renderAll();
+    toast("Team zurückgesetzt.");
+  }
+
+  function doDeleteTeam(id){
+    const team = getTeamById(id);
+    if (!team) return;
+    if (!confirm(`Team "${team.teamName}" wirklich löschen?`)) return;
+
+    teams = teams.filter(t => t.teamId !== id);
+    persist();
+
+    if (activeTeamId === id){
+      activeTeamId = null;
+      document.getElementById("viewTeam").style.display = "none";
+    }
+    renderAll();
+    toast("Team gelöscht.");
+  }
+
+  function doDeleteAllTeams(){
+    if (!teams.length) return toast("Keine Teams vorhanden.");
+    if (!confirm("Wirklich ALLE Teams löschen?")) return;
+    teams = [];
+    persist();
+    activeTeamId = null;
+    document.getElementById("viewTeam").style.display = "none";
+    renderAll();
+    toast("Alle Teams gelöscht.");
+  }
+
+  function doPflichtSelect(team){
+    const sel = document.getElementById("pflichtPlayerSelect");
+    if (!sel) return;
+    const idx = Number(sel.value);
+    if (!Number.isFinite(idx)) return;
+    pfSelectIndex = idx;
+    gameSubTab = "pflicht";
+    renderAll();
+  }
+
+  function doPflichtFail(team){
+    if (team.ended) return;
+    const p = team.players[pfSelectIndex];
+    if (!p) return;
+
+    if (p.pfDone) return toast("Pflicht ist für diesen Spieler bereits abgeschlossen.");
+
+    pushHistory(team);
+
+    p.pfAttempts = (p.pfAttempts||0) + 1;
+    p.pfFails = (p.pfFails||0) + 1;
+    ensurePfAutoDone(team, p); // ✅ angepasst
+
+    persist();
+    gameSubTab = "pflicht";
+    renderAll();
+    toast("Fehlversuch eingetragen.");
+  }
+
+  function doPflichtSuccess(team){
+    if (team.ended) return;
+    const p = team.players[pfSelectIndex];
+    if (!p) return;
+
+    if (p.pfDone) return toast("Pflicht ist für diesen Spieler bereits abgeschlossen.");
+
+    pushHistory(team);
+
+    p.pfAttempts = (p.pfAttempts||0) + 1;
+    p.pfDone = true;
+    p.pfSuccess = true;
+
+    persist();
+    gameSubTab = "pflicht";
+    renderAll();
+    toast("Erfolg eingetragen.");
+  }
+
+  function doPflichtReset(team){
+    const p = team.players[pfSelectIndex];
+    if (!p) return;
+
+    if (!confirm(`Pflicht für ${p.name} wirklich zurücksetzen? (Versuche/Fehlkosten werden gelöscht)`)) return;
+
+    pushHistory(team);
+
+    p.pfAttempts = 0;
+    p.pfFails = 0;
+    p.pfDone = false;
+    p.pfSuccess = false;
+
+    persist();
+    gameSubTab = "pflicht";
+    renderAll();
+    toast("Pflicht zurückgesetzt.");
+  }
+
+  function doExportPDF(team){
+    if (anyPlayersMissing(team)) return toast("Keine Spieler – nichts zu exportieren.");
+
+    const rows = team.players.map(p => ({ p, ...calcTotals(team,p) }))
+      .sort((a,b)=>a.totalEuro-b.totalEuro);
+
+    const html = `
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dashboard – ${escapeHtml(team.teamName)}</title>
+<style>
+  body{ font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; color:#111; }
+  h1{ margin:0 0 6px; font-size: 20px; }
+  .meta{ color:#555; margin-bottom: 16px; font-size: 12px; }
+  table{ width:100%; border-collapse: collapse; margin-top: 12px; }
+  th, td{ text-align:left; padding: 10px 8px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+  th{ font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color:#6b7280; }
+  .right{ text-align:right; }
+  .badge{ display:inline-block; padding: 2px 8px; border-radius: 999px; background:#eef2ff; border:1px solid #e0e7ff; font-size: 11px; }
+  .toprow{ background:#f0f9ff; }
+  .small{ font-size: 12px; color:#4b5563; }
+  @media print{ body{ margin: 14mm; } .noprint{ display:none; } }
+</style>
+</head>
+<body>
+  <div class="noprint" style="margin-bottom:10px;color:#6b7280;font-size:12px;">
+    Tipp: Im Druckdialog <strong>„Als PDF speichern“</strong> wählen.
+  </div>
+  <h1>Kohlenschlagen – Dashboard</h1>
+  <div class="meta">
+    Team: <strong>${escapeHtml(team.teamName)}</strong> • erstellt: ${escapeHtml(nowStr(team.createdAt))} • Stand: ${escapeHtml(new Date().toLocaleString())}<br/>
+    Runde: <strong>${team.turn.round}</strong> • Spieler: <strong>${team.players.length}</strong> • Status: <span class="badge">${team.ended ? "beendet" : "läuft"}</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Platz</th>
+        <th>Spieler</th>
+        <th class="right">Gesamt</th>
+        <th class="right">Punkte</th>
+        <th class="right">Pflicht</th>
+        <th>Ereignisse</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map((r,i)=>{
+        const ev = r.p.events || {kohleWeg:0,heideKaputt:0,stockKaputt:0};
+        const pfCost = (r.p.pfFails||0) * (Number(team.config.money.pflichtschlag)||0);
+        return `
+          <tr class="${i===0 ? "toprow" : ""}">
+            <td><strong>#${i+1}${i===0 ? " 👑" : ""}</strong></td>
+            <td>${escapeHtml(r.p.name)}<div class="small">Runde ${team.turn.round}</div></td>
+            <td class="right"><strong>${eur(r.totalEuro)}</strong></td>
+            <td class="right">${r.p.pointsTotal} P <span class="small">(${eur(r.pointsEuro)})</span></td>
+            <td class="right"><span class="small">Fehl ${r.p.pfFails||0} • ${eur(pfCost)}</span></td>
+            <td><span class="small">Kohle ${ev.kohleWeg||0}× • Heide ${ev.heideKaputt||0}× • Stock ${ev.stockKaputt||0}× • Ereignisse ${eur(r.eventsEuro)}</span></td>
+          </tr>
+        `;
+      }).join("")}
+    </tbody>
+  </table>
+
+  <script>window.onload = () => { window.focus(); window.print(); }<\/script>
+</body>
+</html>`;
+
+    const w = window.open("", "_blank");
+    if (!w){ toast("Popup blockiert – bitte Popups erlauben."); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    toast("PDF Export geöffnet (Drucken → Als PDF speichern).");
+  }
+
+  /** =======================
+   *  Event Wiring
+   *  ======================= */
+  document.getElementById("createTeamBtn")?.addEventListener("click", () => {
+    const name = document.getElementById("teamName")?.value || "";
+    if (!name.trim()) return toast("Bitte Teamname eingeben.");
+
+    const t = defaultTeam(name);
+    teams.unshift(t);
+    persist();
+
+    document.getElementById("teamName").value = "";
+    setActiveTeam(t.teamId);
+    activeTab = "opt";
+    renderAll();
+    toast("Team erstellt.");
+  });
+
+  document.getElementById("tabDashboard")?.addEventListener("click", () => { activeTab="dash"; renderAll(); });
+  document.getElementById("tabGame")?.addEventListener("click",      () => { activeTab="game"; renderAll(); });
+  document.getElementById("tabOptions")?.addEventListener("click",   () => { activeTab="opt";  renderAll(); });
+
+  document.getElementById("deleteAllTeamsBtn")?.addEventListener("click", doDeleteAllTeams);
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-action]");
+    if (!btn) return;
+
+    const action = btn.getAttribute("data-action");
+    const team = getActiveTeam();
+
+    if (action === "openTeam"){
+      const id = btn.getAttribute("data-id");
+      setActiveTeam(id);
+      activeTab = "dash";
+      renderAll();
+      toast("Team geöffnet.");
+      return;
+    }
+
+    if (action === "deleteTeam"){
+      const id = btn.getAttribute("data-id");
+      doDeleteTeam(id);
+      return;
+    }
+
+    if (!team) return;
+
+    switch(action){
+      case "endGame": doEndGame(team); break;
+      case "undo": doUndo(team); break;
+      case "exportPDF": doExportPDF(team); break;
+
+      case "setSubTab":
+        gameSubTab = btn.getAttribute("data-sub") === "pflicht" ? "pflicht" : "turn";
+        if (gameSubTab === "pflicht") pfSelectIndex = team.turn.currentPlayerIndex;
+        renderAll();
+        break;
+
+      case "addEvent":
+        doAddEvent(team, btn.getAttribute("data-event"));
+        break;
+
+      case "nextTurn": doNextTurn(team); break;
+      case "savePlayers": doSavePlayers(team); break;
+      case "saveConfig": doSaveConfig(team); break;
+      case "resetTeam": doResetTeam(team); break;
+
+      case "pflichtFail": doPflichtFail(team); break;
+      case "pflichtSuccess": doPflichtSuccess(team); break;
+      case "pflichtReset": doPflichtReset(team); break;
+    }
+  });
+
+  document.addEventListener("change", (e) => {
+    if (e.target && e.target.id === "pflichtPlayerSelect"){
+      const team = getActiveTeam();
+      if (!team) return;
+      doPflichtSelect(team);
+    }
+  });
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
